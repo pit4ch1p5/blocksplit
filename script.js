@@ -134,14 +134,13 @@ async function getLastActive(user) {
 
     var functionCalls = await getAllFunctionCalls(contractAddress, 'add_IOU');
     
-	functionCalls = functionCalls
-		.filter(functionCall => (functionCall.from === user || functionCall.args[0] === user))
-		.sort((a, b) => a.timestamp > b.timestamp);
-		
-	if (functionCalls.length > 0) 
-		return functionCalls[0].t
-	return null
-  
+	for (var i = 0; i < functionCalls.length; i++) {
+		if (functionCalls[i].from == user.toLowerCase()) {
+			return functionCalls[i].t;
+		}
+	}
+	
+	return null;
 }
 
 // TODO: add an IOU ('I owe you') to the system
