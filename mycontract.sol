@@ -1,40 +1,44 @@
-// Please paste your contract's solidity code here
-// Note that writing a contract here WILL NOT deploy it and allow you to access it from your client
-// You should write and develop your contract in Remix and then, before submitting, copy and paste it here
+// Contract to implement Splitwise on an Ethereum blockchain testnet.
 
 pragma solidity 0.5.2;
 
 contract BlockchainSplitwise {
     
-    // define a mapping with two addresses and a uint (to store the balances owed)
+    // Define a mapping with two addresses and a uint (to store balances owed)
     
     mapping(address => mapping(address => uint32)) users;
     
-     // lookup function to find balances owed
+     // Function to find amounts owed by a debtor to a creditor
     
     function lookup(address debtor, address creditor) public view returns (uint32 ret) {
         return users[debtor][creditor];
     }
     
-    // add IOU function to add new balances and clear debt cycles
+    // Function to add new balances and clear debt loops
     
-    function add_IOU(address creditor, uint32 amount, address[] memory cycle, uint32 minDebt) public {
-        require (amount >= 0, 'Negative amount');
-        require (minDebt >= 0, 'Negative minDebt');
+    function add_IOU(address creditor, uint32 amount, address[] memory loop, uint32 minBalance) public {
         
-        if(cycle.length == 0){
+        // Checks a few things including that sender is part of the loop
+        require (amount >= 0, 'Negative amount');
+        require (minBalance >= 0, 'Negative minBalance');
+        // require (loop[loop.length-1] = msg.sender, 'Attempting to edit other entries');
+        
+        // Checks for valid loop then adjust balances 
+        if(loop.length == 0 || loop = null) {
             users[msg.sender][creditor] += amount;
         } else {
-            // Check that sender is in the end of the cycle
-            for(uint i = 0; i < (cycle.length - 1); i++){
-                require(lookup(cycle[i], cycle[i+1]) >= minDebt);
-                users[cycle[i]][cycle[i+1]] -= minDebt;
+            
+            for(uint i = 0; i < (loop.length - 1); i++) {
+                require(lookup(loop[i], loop[i+1]) >= minBalance, 'Invalid loop'); 
             }
             
-            users[cycle[cycle.length-1]][cycle[0]] += amount;
-            users[cycle[cycle.length-1]][cycle[0]] -= minDebt;
+            for(uint i = 0; i < (loop.length - 1); i++) {
+                users[loop[i]][loop[i+1]] -= minBalance;
+            }
             
-        
+            users[loop[loop.length-1]][loop[0]] += amount;
+            users[loop[loop.length-1]][loop[0]] -= minBalance;
+            
         }
         
     }
